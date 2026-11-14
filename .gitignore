@@ -1,0 +1,21 @@
+# build outputs
+build/
+*.o
+*.a
+*.so
+a.out
+core
+core.*
+vgcore.*
+
+# GStreamer debug dumps
+*.dot
+*.dot.png
+*.dot.svg
+
+# editor / tooling
+.vscode/
+.idea/
+compile_commands.json
+.cache/
+*.swp
