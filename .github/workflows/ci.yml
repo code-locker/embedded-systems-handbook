@@ -1,0 +1,30 @@
+# Builds and runs every example on each push / PR, so the course never rots.
+name: build-and-test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # ASan cannot map its shadow memory with the 32-bit mmap randomisation
+      # that recent Ubuntu kernels use; 28 bits is what ASan supports.
+      - name: Make ASLR compatible with AddressSanitizer
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+
+      - name: Install toolchain and GStreamer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+
+      - name: DSA (ASan + UBSan)
+        run: make -j"$(nproc)" test
+
+      - name: GStreamer (headless)
+        run: make -j"$(nproc)" test-gst
