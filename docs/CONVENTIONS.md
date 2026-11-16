@@ -15,6 +15,13 @@ dsa/NN-topic/
     ├── 01_<name>.cpp
     └── ...
 
+linux-internals/NN-topic/   same shape as dsa/: README.md + c/ + cpp/
+
+linux-device-drivers/NN-topic/
+├── README.md
+├── kernel/            out-of-tree module(s) + Kbuild Makefile (KDIR=..., `make drivers`)
+└── user/              user-space programs that talk to the module (need it loaded)
+
 gstreamer/NN-topic/
 ├── README.md
 ├── *.c / *.cpp        programs
@@ -33,6 +40,12 @@ gstreamer/NN-topic/
    and runs clean under AddressSanitizer + UndefinedBehaviorSanitizer, with no
    leaks. Exception: files named `*_bug.c` / `*_bug.cpp` are *intentionally*
    broken for debugging lessons; their header says which tool finds the bug.
+   `linux-internals/` programs must *also* be clean under ThreadSanitizer
+   (`make run P=... SAN=tsan`, `make test-tsan`), finish in a few seconds
+   even under TSan, never hang (timeouts / `alarm()` watchdogs), and use
+   per-run unique IPC names (include `getpid()`) that they clean up.
+   Kernel modules build with zero warnings (also with `W=1`) and test
+   themselves at load time, printing PASS/FAIL to `dmesg`.
 4. **Header comment** at the top of the file:
    ```c
    /*

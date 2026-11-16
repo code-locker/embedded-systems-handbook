@@ -1,16 +1,18 @@
 # DSA + GStreamer — learn once, remember forever
 
 A hands-on course in **C and C++** that goes from first principles to advanced
-topics in two tracks:
+topics in these tracks:
 
 | Track | What you learn |
 |---|---|
 | [**DSA**](dsa/README.md) | How the machine really works (compilation, pointers, stack/heap memory, debugging), then every core data structure and algorithm, up to graphs, advanced trees, dynamic programming and system-design structures. |
+| [**Linux internals**](linux-internals/README.md) | Concurrency and IPC: processes and threads, atomics and memory ordering, mutexes, condition variables, semaphores, spinlocks and futexes, rwlocks/seqlocks/RCU, barriers and thread pools; then pipes, FIFOs, message queues, shared memory, Unix sockets, signals, eventfd and epoll. Every program is checked under ThreadSanitizer too. |
+| [**Linux device drivers**](linux-device-drivers/README.md) | Kernel-side code as out-of-tree modules. Starts with kernel synchronisation: atomic_t, spinlocks and their irq/bh variants, mutex, semaphore, rw_semaphore, completions, wait queues, seqlocks, RCU and lockdep. |
 | [**GStreamer**](gstreamer/README.md) | Multimedia pipelines from `gst-launch-1.0` one-liners to C/C++ applications, appsrc/appsink, pad probes, custom elements, network streaming, debugging, zero-copy, and embedded use on the BeagleBone AI-64 (TDA4VM). |
 
-More tracks are on the way, each arriving as its own PR: **Linux internals**
-(processes, virtual memory, threads, interrupts, zero-copy, DMA buffers),
-**ARM architecture**, **Linux device drivers**, and **protocols**
+More tracks are on the way, each arriving as its own PR: more **Linux
+internals** (virtual memory, interrupts, zero-copy, DMA buffers), more
+**Linux device drivers**, **ARM architecture**, and **protocols**
 (UART, I2C, SPI, CAN, USB, TCP/IP).
 
 Every lesson is a folder with a **README that explains the concept** (with
@@ -26,6 +28,7 @@ sudo apt install build-essential gdb valgrind \
      gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 
 make test                 # build + run every DSA program (ASan + UBSan on)
+make test-tsan            # linux-internals again under ThreadSanitizer (races, deadlocks)
 make test-gst             # build + run every GStreamer program (headless)
 
 # one program at a time (this is how you study):
@@ -70,9 +73,12 @@ More in [docs/SETUP.md](docs/SETUP.md).
 │   ├── 17-dynamic-programming
 │   ├── 18-bit-manipulation  incl. embedded register manipulation
 │   └── 19-system-design-structures  LRU, pools, timer wheels, rate limiters
+├── linux-internals/         concurrency + IPC (01-processes-and-threads … 13-signals-eventfd-and-epoll)
+├── linux-device-drivers/    out-of-tree kernel modules (01-kernel-synchronization)
 ├── gstreamer/
 │   ├── 00-concepts … 14-embedded-tda4vm
 ├── scripts/run-all.sh
+├── skills/                  Claude skills for maintaining this repo (.claude/skills -> skills/)
 └── Makefile                 builds every .c/.cpp as its own program into build/
 ```
 
