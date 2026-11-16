@@ -16,6 +16,10 @@
 #      make run P=dsa/06-linked-lists/c/01_singly_linked_list.c
 #                           build + run exactly one program
 #      make SAN=0           build without sanitizers (use this with valgrind!)
+#      make SAN=tsan        build with ThreadSanitizer instead of ASan/UBSan
+#                           (data races, lock-order inversions); `make run` then
+#                           runs the program with ASLR off, which TSan needs
+#      make test-tsan       build + run every linux-internals/ program under TSan
 #      make OPT=1           build optimised (-O2), e.g. for benchmarks
 #      make clean
 #
@@ -50,6 +54,15 @@ ifeq ($(SAN),1)
   SANFLAGS := -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
 endif
 
+# ThreadSanitizer cannot be combined with ASan, so it is a separate mode.
+# TSan needs a fixed address-space layout: with the 32-bit mmap randomisation
+# of recent Ubuntu kernels it aborts with "unexpected memory mapping", so
+# programs are started under `setarch -R` (ASLR off for that process only).
+ifeq ($(SAN),tsan)
+  SANFLAGS   := -fsanitize=thread -fno-omit-frame-pointer
+  RUN_PREFIX := setarch $(shell uname -m) -R
+endif
+
 CFLAGS   += $(CSTD)   $(WARN) $(DBG) $(SANFLAGS)
 CXXFLAGS += $(CXXSTD) $(WARN) $(DBG) $(SANFLAGS)
 LDLIBS   += -lm -lpthread
@@ -66,6 +79,7 @@ HOST_DIRS := dsa linux-internals protocols
 DSA_C    := $(shell find $(HOST_DIRS) -name '*.c'   2>/dev/null | sort)
 DSA_CXX  := $(shell find $(HOST_DIRS) -name '*.cpp' 2>/dev/null | sort)
 DSA_BINS := $(addprefix $(BUILD)/,$(DSA_C:.c=) $(DSA_CXX:.cpp=))
+LI_BINS  := $(filter $(BUILD)/linux-internals/%,$(DSA_BINS))
 
 # ---- ARM (aarch64) programs: cross-compiled, run on the BeagleBone AI-64 -----
 CROSS     ?= aarch64-linux-gnu-
@@ -89,10 +103,11 @@ GST_BINS := $(addprefix $(BUILD)/,$(GST_C:.c=) $(GST_CXX:.cpp=))
 GST_CFLAGS = $(shell pkg-config --cflags $(GST_PKGS))
 GST_LIBS   = $(shell pkg-config --libs   $(GST_PKGS))
 
-.PHONY: all dsa host gst arm drivers drivers-clean test test-gst run clean list help
+.PHONY: all dsa host internals gst arm drivers drivers-clean test test-gst test-tsan run clean list help
 
 all: host
 dsa host: $(DSA_BINS)
+internals: $(LI_BINS)
 gst: check-gst $(GST_BINS)
 arm: $(ARM_BINS)
 
@@ -156,6 +171,14 @@ test: host
 test-gst: gst
 	@ASAN_OPTIONS=detect_leaks=0 ./scripts/run-all.sh $(BUILD)/gstreamer
 
+# Concurrency lessons again, under ThreadSanitizer, in their own build dir so
+# the ASan build in build/ is not thrown away. halt_on_error: the first race
+# report fails the program, so a racy lesson cannot pass.
+test-tsan:
+	@$(MAKE) --no-print-directory SAN=tsan BUILD=$(BUILD)/tsan internals
+	@TSAN_OPTIONS="halt_on_error=1 second_deadlock_stack=1" \
+	  setarch $(shell uname -m) -R ./scripts/run-all.sh $(BUILD)/tsan/linux-internals
+
 # make run P=path/to/file.c  -> build and run that one program
 run:
 	@test -n "$(P)" || { echo "usage: make run P=dsa/01-pointers/c/01_pointer_basics.c"; exit 1; }
@@ -166,7 +189,7 @@ run:
 	  arm-architecture/*) $(MAKE) --no-print-directory $$bin && \
 	                      echo "built $$bin (aarch64): copy it to the board to run it; disassembly in $$bin.dis" && exit 0 ;; \
 	  *)                  $(MAKE) --no-print-directory $$bin ;; esac && \
-	echo "---- running $$exe ----" && $$exe
+	echo "---- running $$exe ----" && $(RUN_PREFIX) $$exe
 
 list:
 	@printf '%s\n' $(DSA_C) $(DSA_CXX) $(GST_C) $(GST_CXX) $(ARM_SRC) $(DRV_USER) $(DRV_KDIRS)
@@ -175,4 +198,4 @@ clean:
 	rm -rf $(BUILD)
 
 help:
-	@sed -n '2,26p' Makefile
+	@sed -n '2,30p' Makefile

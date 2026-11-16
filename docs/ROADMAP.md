@@ -5,9 +5,10 @@ core rewritten from memory). Fill in the review dates using the schedule in
 [LEARNING_METHOD.md](LEARNING_METHOD.md): R1 = +1 day, R2 = +3 days,
 R3 = +1 week, R4 = +3 weeks, R5 = +2 months.
 
-The two tracks can run in parallel. A good rhythm is 4 days of DSA and
-2 days of GStreamer per week. GStreamer needs pointers, memory and debugging
-(DSA phases 1–2) first.
+The tracks can run in parallel. A good rhythm is 4 days of DSA and
+2 days of GStreamer or Linux internals per week. GStreamer and Linux internals
+need pointers, memory and debugging (DSA phases 1–2) first. GStreamer 08
+(queues and threads) reads much better after Linux internals part 1.
 
 ## Track A — DSA
 
@@ -73,6 +74,41 @@ Graphs come after recursion on purpose: DFS *is* recursion.
 | [ ] | [13 Performance and zero-copy](../gstreamer/13-performance-zero-copy/README.md) | | | | | | |
 | [ ] | [14 Embedded: TDA4VM / BeagleBone AI-64](../gstreamer/14-embedded-tda4vm/README.md) | | | | | | |
 
+## Track C — Linux internals: concurrency and IPC (start after DSA phase 2)
+
+Run every program twice: normally and with `SAN=tsan`. Then break the locking
+on purpose and watch ThreadSanitizer catch it.
+
+### Part 1: threads and synchronisation
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [01 Processes and threads](../linux-internals/01-processes-and-threads/README.md) | | | | | | |
+| [ ] | [02 Race conditions and atomics](../linux-internals/02-race-conditions-and-atomics/README.md) | | | | | | |
+| [ ] | [03 Mutexes and deadlock](../linux-internals/03-mutexes-and-deadlock/README.md) | | | | | | |
+| [ ] | [04 Condition variables](../linux-internals/04-condition-variables/README.md) | | | | | | |
+| [ ] | [05 Semaphores](../linux-internals/05-semaphores/README.md) | | | | | | |
+| [ ] | [06 Spinlocks and futex](../linux-internals/06-spinlocks-and-futex/README.md) | | | | | | |
+| [ ] | [07 Read-write locks, seqlocks and RCU](../linux-internals/07-rwlocks-seqlocks-and-rcu/README.md) | | | | | | |
+| [ ] | [08 Barriers, once and thread pools](../linux-internals/08-barriers-once-and-thread-pools/README.md) | | | | | | |
+
+### Part 2: inter-process communication
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [09 Pipes and FIFOs (+ IPC overview)](../linux-internals/09-ipc-pipes-and-fifos/README.md) | | | | | | |
+| [ ] | [10 Message queues](../linux-internals/10-ipc-message-queues/README.md) | | | | | | |
+| [ ] | [11 Shared memory](../linux-internals/11-ipc-shared-memory/README.md) | | | | | | |
+| [ ] | [12 Unix domain sockets](../linux-internals/12-ipc-unix-sockets/README.md) | | | | | | |
+| [ ] | [13 Signals, eventfd and epoll](../linux-internals/13-signals-eventfd-and-epoll/README.md) | | | | | | |
+
+## Track D — Linux device drivers (after Track C part 1)
+
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [01 Kernel synchronisation](../linux-device-drivers/01-kernel-synchronization/README.md) | | | | | | |
+
+Kernel modules are build-tested on the PC. Load them on the board or in a VM,
+not on your desktop kernel.
+
 ## Milestone projects
 
 Each one combines several lessons. Build it from scratch in a `projects/` folder.
@@ -84,5 +120,10 @@ Each one combines several lessons. Build it from scratch in a `projects/` folder
 3. **Frame grabber** (after GStreamer 06): capture from `v4l2src` or
    `videotestsrc`, pull frames with appsink, compute a per-frame histogram in
    C++, and print it.
-4. **Streaming camera on the BeagleBone AI-64** (after GStreamer 14): camera →
+4. **Multi-process sensor logger** (after Linux internals): a producer
+   process writes samples into a shared-memory ring buffer, a logger process
+   wakes on an eventfd passed over a Unix socket, and a control process
+   changes settings through a message queue. It shuts down cleanly on SIGTERM
+   and is clean under TSan within each process.
+5. **Streaming camera on the BeagleBone AI-64** (after GStreamer 14): camera →
    hardware encoder → RTP/UDP → laptop, with latency measured using tracers.

@@ -326,8 +326,10 @@ it off for one run; gdb turns it off by default (`set disable-randomization`).
 
 **Going deeper** — page tables (4 levels on x86_64/arm64 with 4 KiB pages),
 the TLB, minor vs major faults, copy-on-write after `fork`, huge pages, and the
-kernel side of all of this are in the Linux-internals track:
-[linux-internals/03-virtual-memory](../../linux-internals/03-virtual-memory/).
+kernel side of all of this belong to the [Linux-internals track](../../linux-internals/README.md)
+(a virtual-memory lesson is planned; copy-on-write after `fork` is already in
+[01-processes-and-threads](../../linux-internals/01-processes-and-threads/README.md),
+and `mmap`/shared mappings in [11-ipc-shared-memory](../../linux-internals/11-ipc-shared-memory/README.md)).
 What you need here: *a virtual address is translated page by page to a
 physical frame; unmapped or permission-violating accesses fault; the kernel
 fills pages lazily.*

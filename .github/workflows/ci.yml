@@ -23,8 +23,16 @@ jobs:
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
 
-      - name: DSA (ASan + UBSan)
+      - name: DSA + Linux internals (ASan + UBSan)
         run: make -j"$(nproc)" test
+
+      - name: Linux internals under ThreadSanitizer
+        run: make -j"$(nproc)" test-tsan
+
+      - name: Kernel modules build (against the runner's kernel headers)
+        run: |
+          sudo apt-get install -y "linux-headers-$(uname -r)" || { echo "no headers for $(uname -r); skipping"; exit 0; }
+          make -j"$(nproc)" drivers
 
       - name: GStreamer (headless)
         run: make -j"$(nproc)" test-gst

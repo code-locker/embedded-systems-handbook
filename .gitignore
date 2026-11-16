@@ -19,3 +19,13 @@ vgcore.*
 compile_commands.json
 .cache/
 *.swp
+
+# kernel module build outputs (linux-device-drivers/*/kernel)
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.cmd
+Module.symvers
+modules.order
+.tmp_versions/

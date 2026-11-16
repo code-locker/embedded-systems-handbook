@@ -27,10 +27,13 @@ gst-inspect-1.0 videotestsrc
 
 | Command | What it does |
 |---|---|
-| `make` | build all DSA programs (debug, `-O0 -g3`, ASan + UBSan) |
+| `make` | build all host programs: `dsa/` and `linux-internals/` (debug, `-O0 -g3`, ASan + UBSan) |
 | `make gst` | build all GStreamer programs |
 | `make test` / `make test-gst` | build and run everything; prints pass/fail |
 | `make run P=<file.c>` | build and run one program |
+| `make test-tsan` | run every `linux-internals/` program under ThreadSanitizer |
+| `make run P=<file.c> SAN=tsan` | one program under ThreadSanitizer (data races, lock-order inversions) |
+| `make drivers` | build the `linux-device-drivers/` kernel modules against this PC's kernel (`KDIR=` for the board) |
 | `make SAN=0` | no sanitizers, which you need for **valgrind** and sometimes **gdb** |
 | `make OPT=1 SAN=0` | optimised build for benchmarks |
 | `make list` | list every program |
