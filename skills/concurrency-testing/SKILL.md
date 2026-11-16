@@ -73,4 +73,14 @@ On recent Ubuntu kernels `vm.mmap_rnd_bits` is 32, and TSan (and sometimes ASan)
 | signal demo hangs only under TSan | TSan defers signal handlers to its next safe point, so a handler expected to run *during* a blocking `read()` may never run. Drive the blocking call from another process, and assert `>= 1` not exact tick counts |
 | queued RT signals arrive merged under TSan | TSan delivers them on unblock in a batch. Drain with a `sigsuspend` loop guarded by `sigpending`, one signal per call |
 | ASan "CHECK failed … kCurrentStackFrameMagic" in a cancellation demo | glibc cancels C threads by unwinding in a way ASan doesn't track. Mark the cancelled functions `__attribute__((no_sanitize_address))` under `#ifdef __SANITIZE_ADDRESS__`; TSan still covers them |
+| `mlock`/`mlockall` "succeed" but VmLck stays 0 | ASan/TSan intercept them as no-ops. Use `syscall(SYS_mlock, …)` to really lock; skip `mlockall` under `__SANITIZE_ADDRESS__`/`__SANITIZE_THREAD__` |
+| LeakSanitizer fatal error at exit, stdout lost | the fd limit is used up, so LSan can't open `/proc`. Restore `RLIMIT_NOFILE` before printing or exiting. LSan also refuses ptrace, so use `SAN=0` for strace |
+| page-fault / RSS / COW counts ~3× too high under TSan | TSan writes shadow memory on reads too. Assert `>=` or relative values; also `madvise(MADV_NOHUGEPAGE)` the region so THP doesn't map 512 pages per fault |
+| TSan binary re-exec'd with ASLR on aborts | keep `ADDR_NO_RANDOMIZE` across the self-exec (it survives exec) |
+| "which mapping holds libc" demo shows libasan/libtsan | intercepted symbols (printf, malloc) resolve to the sanitizer runtime. Use a non-intercepted one like `getpid` |
+| thread with a small explicit stack segfaults under TSan before running | static TLS + TSan per-thread state eat the stack. Use ≥ 2 MiB stacks in tested programs |
+| `mlockall` ENOMEM under ASan/TSan | terabytes of shadow mappings. Skip `mlockall` under sanitizers |
+| latency floor of ~50 µs in a timing demo | default timer slack for SCHED_OTHER. `prctl(PR_SET_TIMERSLACK, 1)` |
+| scheduling demo can't restore SCHED_OTHER / lower nice | unprivileged SCHED_IDLE and nice increases are one-way (RLIMIT_NICE=0). Do them in a throwaway thread |
+| copy benchmarks show user-space copies much slower than sendfile/splice | sanitizers instrument user copies. Benchmark with `SAN=0 OPT=1` |
 | fork/orphan demo flaky only under TSan | the parent races the child's read of `getppid()`. Add a pipe handshake so ordering is explicit, never `sleep` |
