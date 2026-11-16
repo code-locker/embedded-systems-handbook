@@ -6,14 +6,12 @@ topics in these tracks:
 | Track | What you learn |
 |---|---|
 | [**DSA**](dsa/README.md) | How the machine really works (compilation, pointers, stack/heap memory, debugging), then every core data structure and algorithm, up to graphs, advanced trees, dynamic programming and system-design structures. |
-| [**Linux internals**](linux-internals/README.md) | Concurrency and IPC: processes and threads, atomics and memory ordering, mutexes, condition variables, semaphores, spinlocks and futexes, rwlocks/seqlocks/RCU, barriers and thread pools; then pipes, FIFOs, message queues, shared memory, Unix sockets, signals, eventfd and epoll. Every program is checked under ThreadSanitizer too. |
-| [**Linux device drivers**](linux-device-drivers/README.md) | Kernel-side code as out-of-tree modules. Starts with kernel synchronisation: atomic_t, spinlocks and their irq/bh variants, mutex, semaphore, rw_semaphore, completions, wait queues, seqlocks, RCU and lockdep. |
+| [**Linux internals**](linux-internals/README.md) | System calls and file I/O; concurrency: processes and threads, atomics and memory ordering, mutexes, condition variables, semaphores, spinlocks and futexes, rwlocks/seqlocks/RCU, barriers and thread pools; then pipes, FIFOs, message queues, shared memory, Unix sockets, signals, eventfd and epoll; then virtual memory, real-time scheduling and zero-copy / io_uring. Every program is checked under ThreadSanitizer too. |
+| [**Linux device drivers**](linux-device-drivers/README.md) | Kernel modules from "hello" to real drivers: char devices and ioctl, kernel memory, kernel locking, interrupts and deferred work, sysfs/procfs/debugfs, the device model and device tree, GPIO/I2C/SPI drivers, DMA and mmap, and kernel debugging/tracing, for the BeagleBone AI-64. |
 | [**GStreamer**](gstreamer/README.md) | Multimedia pipelines from `gst-launch-1.0` one-liners to C/C++ applications, appsrc/appsink, pad probes, custom elements, network streaming, debugging, zero-copy, and embedded use on the BeagleBone AI-64 (TDA4VM). |
 
-More tracks are on the way, each arriving as its own PR: more **Linux
-internals** (virtual memory, interrupts, zero-copy, DMA buffers), more
-**Linux device drivers**, **ARM architecture**, and **protocols**
-(UART, I2C, SPI, CAN, USB, TCP/IP).
+More tracks are on the way, each arriving as its own PR: **ARM architecture**
+and **protocols** (UART, I2C, SPI, CAN, USB, TCP/IP).
 
 Every lesson is a folder with a **README that explains the concept** (with
 analogies, ASCII diagrams, real-world uses, pitfalls and a recall card) and
@@ -39,6 +37,8 @@ More in [docs/SETUP.md](docs/SETUP.md).
 
 ## How to study (read this first)
 
+0. **[docs/LINUX_GUIDE.md](docs/LINUX_GUIDE.md)** is the start-here guide for
+   the Linux internals and driver tracks: order, weekly plan and checklists.
 1. **[docs/LEARNING_METHOD.md](docs/LEARNING_METHOD.md)** explains how to make it
    stick: active recall, rebuilding from a blank file, spaced review.
 2. **[docs/ROADMAP.md](docs/ROADMAP.md)** is the order to follow, with checkboxes
@@ -73,8 +73,8 @@ More in [docs/SETUP.md](docs/SETUP.md).
 │   ├── 17-dynamic-programming
 │   ├── 18-bit-manipulation  incl. embedded register manipulation
 │   └── 19-system-design-structures  LRU, pools, timer wheels, rate limiters
-├── linux-internals/         concurrency + IPC (01-processes-and-threads … 13-signals-eventfd-and-epoll)
-├── linux-device-drivers/    out-of-tree kernel modules (01-kernel-synchronization)
+├── linux-internals/         00-syscalls-and-file-io … 16-zero-copy-and-async-io
+├── linux-device-drivers/    00-kernel-module-basics … 09-kernel-debugging-and-tracing
 ├── gstreamer/
 │   ├── 00-concepts … 14-embedded-tda4vm
 ├── scripts/run-all.sh

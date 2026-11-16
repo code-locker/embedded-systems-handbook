@@ -410,7 +410,7 @@ that a `std::function` call may allocate.
   `.poll` file operation: call `poll_wait(file, &wq, pt)` on its wait queue
   and return `EPOLLIN` when data is ready; the IRQ handler calls
   `wake_up_interruptible(&wq)`. See
-  [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
   KVM and VFIO use eventfds to inject and report interrupts; `io_uring`
   can notify completions through an eventfd.
 - **Embedded/RTOS.** FreeRTOS has no signals: the equivalent of "event
@@ -518,7 +518,7 @@ While a program runs you can inspect it with `grep Sig /proc/<pid>/status`
    `EPOLLONESHOT`, re-armed after each callback. Prove with TSan that no
    fd is handled by two threads at once.
 10. Write a small kernel module (see
-    [linux-device-drivers](../../linux-device-drivers/01-kernel-synchronization/README.md))
+    [linux-device-drivers](../../linux-device-drivers/03-kernel-synchronization/README.md))
     with a misc device whose `.poll` reports readable when a timer in the
     kernel fires, and add that device to the `c/08` loop on the
     BeagleBone AI-64.

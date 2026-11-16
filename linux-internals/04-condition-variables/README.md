@@ -220,7 +220,7 @@ In the kernel the same idea is a **wait queue**:
 and `wake_up(&wq)` is the signal. The lost-wake-up problem is solved in the
 kernel by setting the task state *before* re-checking the condition
 (`prepare_to_wait` → check → `schedule()`). See
-[linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+[linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 
 ---
 
@@ -268,7 +268,7 @@ only time out are unaffected.
   condition variables; `struct completion` (`wait_for_completion`,
   `complete`) is the one-shot event / latch. Every blocking `read()` on a
   driver sleeps in one. Kernel side:
-  [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 - **glibc.** `nptl/pthread_cond_wait.c`, the 2017 rewrite (by Torvald
   Riegel) that fixed an ordering bug in the old algorithm: waiters are
   split into two groups with 64-bit sequence counters. It is a good,

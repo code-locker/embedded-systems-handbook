@@ -389,7 +389,7 @@ ring). Neither means "faster than a mutex" — measure.
   list used for deferred work. Documented in
   `Documentation/memory-barriers.txt` and modelled by the LKMM
   (`tools/memory-model`). Kernel side of this track:
-  [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 - **glibc**: the `pthread_mutex` fast path is one CAS on a futex word;
   `pthread_once` and `std::call_once` use an acquire load for the "already
   done" check (lesson [08](../08-barriers-once-and-thread-pools/README.md)).

@@ -74,12 +74,18 @@ Graphs come after recursion on purpose: DFS *is* recursion.
 | [ ] | [13 Performance and zero-copy](../gstreamer/13-performance-zero-copy/README.md) | | | | | | |
 | [ ] | [14 Embedded: TDA4VM / BeagleBone AI-64](../gstreamer/14-embedded-tda4vm/README.md) | | | | | | |
 
-## Track C — Linux internals: concurrency and IPC (start after DSA phase 2)
+## Track C — Linux internals (start after DSA phase 2)
 
-Run every program twice: normally and with `SAN=tsan`. Then break the locking
-on purpose and watch ThreadSanitizer catch it.
+Follow the step-by-step guide and end-of-phase checklists in
+[LINUX_GUIDE.md](LINUX_GUIDE.md). Run every program twice, normally and with
+`SAN=tsan`.
 
-### Part 1: threads and synchronisation
+### Part 0: the system call boundary (week 1)
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [00 System calls and file I/O](../linux-internals/00-syscalls-and-file-io/README.md) | | | | | | |
+
+### Part 1: threads and synchronisation (weeks 2–5)
 | ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
 |---|---|---|---|---|---|---|---|
 | [ ] | [01 Processes and threads](../linux-internals/01-processes-and-threads/README.md) | | | | | | |
@@ -91,7 +97,7 @@ on purpose and watch ThreadSanitizer catch it.
 | [ ] | [07 Read-write locks, seqlocks and RCU](../linux-internals/07-rwlocks-seqlocks-and-rcu/README.md) | | | | | | |
 | [ ] | [08 Barriers, once and thread pools](../linux-internals/08-barriers-once-and-thread-pools/README.md) | | | | | | |
 
-### Part 2: inter-process communication
+### Part 2: inter-process communication (weeks 6–8)
 | ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
 |---|---|---|---|---|---|---|---|
 | [ ] | [09 Pipes and FIFOs (+ IPC overview)](../linux-internals/09-ipc-pipes-and-fifos/README.md) | | | | | | |
@@ -100,14 +106,39 @@ on purpose and watch ThreadSanitizer catch it.
 | [ ] | [12 Unix domain sockets](../linux-internals/12-ipc-unix-sockets/README.md) | | | | | | |
 | [ ] | [13 Signals, eventfd and epoll](../linux-internals/13-signals-eventfd-and-epoll/README.md) | | | | | | |
 
-## Track D — Linux device drivers (after Track C part 1)
-
+### Part 3: memory, scheduling and I/O (weeks 9–10)
 | ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
 |---|---|---|---|---|---|---|---|
-| [ ] | [01 Kernel synchronisation](../linux-device-drivers/01-kernel-synchronization/README.md) | | | | | | |
+| [ ] | [14 Virtual memory](../linux-internals/14-virtual-memory/README.md) | | | | | | |
+| [ ] | [15 Scheduling and real time](../linux-internals/15-scheduling-and-real-time/README.md) | | | | | | |
+| [ ] | [16 Zero-copy and async I/O](../linux-internals/16-zero-copy-and-async-io/README.md) | | | | | | |
 
-Kernel modules are build-tested on the PC. Load them on the board or in a VM,
-not on your desktop kernel.
+## Track D — Linux device drivers (after Track C parts 0–1 and lesson 14)
+
+Kernel modules are build-tested on the PC. Load them on the BeagleBone or in
+a VM, never on your desktop kernel.
+
+### Phase 1: first modules (weeks 11–12)
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [00 Kernel module basics](../linux-device-drivers/00-kernel-module-basics/README.md) | | | | | | |
+| [ ] | [01 Char devices and file operations](../linux-device-drivers/01-char-devices-and-file-operations/README.md) | | | | | | |
+| [ ] | [02 Kernel memory and data structures](../linux-device-drivers/02-kernel-memory-and-data-structures/README.md) | | | | | | |
+
+### Phase 2: concurrency and asynchronous events (weeks 13–14)
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [03 Kernel synchronisation](../linux-device-drivers/03-kernel-synchronization/README.md) | | | | | | |
+| [ ] | [04 Interrupts, timers and deferred work](../linux-device-drivers/04-interrupts-timers-and-deferred-work/README.md) | | | | | | |
+
+### Phase 3: real drivers on real hardware (weeks 15–18)
+| ✓ | Lesson | Done on | R1 | R2 | R3 | R4 | R5 |
+|---|---|---|---|---|---|---|---|
+| [ ] | [05 sysfs, procfs and debugfs](../linux-device-drivers/05-sysfs-procfs-debugfs/README.md) | | | | | | |
+| [ ] | [06 Device model and device tree](../linux-device-drivers/06-device-model-and-device-tree/README.md) | | | | | | |
+| [ ] | [07 GPIO, I2C and SPI drivers](../linux-device-drivers/07-gpio-i2c-spi-drivers/README.md) | | | | | | |
+| [ ] | [08 DMA and mmap](../linux-device-drivers/08-dma-and-mmap/README.md) | | | | | | |
+| [ ] | [09 Kernel debugging and tracing](../linux-device-drivers/09-kernel-debugging-and-tracing/README.md) | | | | | | |
 
 ## Milestone projects
 

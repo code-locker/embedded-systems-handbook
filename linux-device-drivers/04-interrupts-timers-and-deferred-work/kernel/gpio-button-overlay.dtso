@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * gpio-button-overlay.dtso — BeagleBone AI-64: push button on header P8_16
+ *                            for gpio_button_irq.ko (compatible "esh,gpio-button")
+ *
+ * Wiring : P8_16 ---[ push button ]--- P8_1 or P8_2 (GND)
+ *          The pad's internal pull-up holds the pin at 3.3 V; pressing pulls
+ *          it to 0 V, hence GPIO_ACTIVE_LOW (gpiolib inverts: 1 = pressed).
+ *          3.3 V logic only — never connect 5 V to a header pin.
+ * Pin    : P8_16 = SoC ball AB28 = PRG0_PRU0_GPO19, mux mode 7 = GPIO0_62,
+ *          pad register offset 0xfc in main_pmx0 (see the gpio-line-names in
+ *          k3-j721e-beagleboneai64-pinmux.dtsi and the BBORG_MOTOR overlay).
+ *          Free in the base DT. Check the pinmux: if another overlay
+ *          (e.g. BBORG_MOTOR) also claims P8_16, pick another pin and change
+ *          the pad offset AND the gpio number together.
+ * Build  : make -C .../kernel dtbo KDIR=<board kernel tree>
+ *          (cpp for the #includes, then dtc -@ -I dts -O dtb)
+ * Read   : ../README.md  (section 3.7 "A real GPIO interrupt on the board")
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include "k3-pinctrl.h"
+
+/* 1. a pinmux group: pad 0xfc -> input, pull-up, mode 7 (GPIO) */
+&main_pmx0 {
+	esh_button_pins: esh-button-default-pins {
+		pinctrl-single,pins = <
+			J721E_IOPAD(0xfc, PIN_INPUT_PULLUP, 7) /* (AB28) PRG0_PRU0_GPO19.GPIO0_62 P8_16 */
+		>;
+	};
+};
+
+/*
+ * 2. the device node. Its OWN pinctrl-0 is applied by the driver core right
+ *    before probe — better than overwriting pinctrl-0 of &main_gpio0, which
+ *    would replace the base DT's list for that controller.
+ */
+&{/} {
+	esh_button: esh-button {
+		compatible = "esh,gpio-button";
+		pinctrl-names = "default";
+		pinctrl-0 = <&esh_button_pins>;
+		button-gpios = <&main_gpio0 62 GPIO_ACTIVE_LOW>;
+		debounce-ms = <20>;
+	};
+};

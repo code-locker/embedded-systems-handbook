@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * esh-demo-overlay.dtso — adds two demo nodes for esh_demo_driver.ko to the
+ *                         BeagleBone AI-64's live device tree
+ *
+ * Nodes  : esh-demo           compatible "esh,demo-device" (the provider):
+ *                             label, a u32, a u32 array, two child nodes
+ *          esh-demo-consumer  compatible "esh,demo-consumer": a phandle to
+ *                             the provider -> deferred probe demo
+ *          esh-demo-off       status = "disabled": no device is created
+ *          No hardware is touched: no reg, no interrupts, no pinctrl.
+ * Build  : make -C .../kernel dtbo      (= dtc -@ -I dts -O dtb -o x.dtbo x.dtso)
+ * Read   : ../README.md  (section 3.8 "Overlays")
+ */
+
+/dts-v1/;
+/plugin/;
+
+/*
+ * "&{/path} { ... }" is the modern overlay syntax: dtc turns it into
+ *   fragment@N { target-path = "/"; __overlay__ { ... }; };
+ * "&label { ... }" targets a node of the base DT by its label and needs the
+ * base DTB to have been built with -@ (it carries __symbols__).
+ */
+&{/} {
+	esh_demo: esh-demo {
+		compatible = "esh,demo-device";
+		label = "board-demo";
+		esh,frequency-hz = <1000000>;
+		esh,thresholds = <100 200 300>;
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		channel@0 {
+			reg = <0>;
+			label = "adc0";
+		};
+
+		channel@1 {
+			reg = <1>;
+			label = "adc1";
+		};
+	};
+
+	esh-demo-consumer {
+		compatible = "esh,demo-consumer";
+		esh,provider = <&esh_demo>;
+	};
+
+	esh-demo-off {
+		compatible = "esh,demo-device";
+		label = "never-probed";
+		status = "disabled";
+	};
+};

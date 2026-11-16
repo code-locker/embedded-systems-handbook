@@ -335,7 +335,7 @@ synchronous. Prefer an explicit pool.
   work from interrupt handlers to them. `DEFINE_PER_CPU` / `this_cpu_*`
   are the kernel's TLS. `DO_ONCE()` and `static_key` handle run-once
   initialisation; completions (`wait_for_completion`) are latches.
-  See [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  See [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 - **glibc.** `pthread_barrier_wait` and `pthread_once` are futex based;
   `errno` is `__thread`; `__cxa_guard_acquire` (libstdc++) for magic
   statics.
