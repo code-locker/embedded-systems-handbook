@@ -63,7 +63,7 @@ For `*_bug` programs, confirm the named tool really reports the bug
 |---|---|
 | `implicit declaration of function 'pthread_...'/'mkstemp'/'sigaction'` | missing `#define _GNU_SOURCE` before the first include |
 | program passes alone but fails in `make test` | depends on cwd, a fixed IPC name, or leftover `/dev/shm` objects. Use `getpid()` in names and clean up |
-| `make test` reports FAIL with no output | run the binary directly: `./build/<path>` |
+| need the full output of a failing program | `run-all.sh` shows its last 15 lines; for everything, run the binary directly: `./build/<path>` |
 | timeout (60 s) in `run-all.sh` | too many iterations under sanitizers, or a real hang. Shrink the loops or add `alarm()` |
 | passes locally, fails on CI | CI is Ubuntu 24.04 + GCC 13 (this PC: 22.04 + GCC 11). Reproduce with `docker run --rm -v "$PWD":/src:ro ubuntu:24.04 bash -c 'apt-get update -qq && apt-get install -y -qq build-essential make >/dev/null; cp -r /src /w && cd /w && rm -rf build && make -s -j16 test'`. Add `--security-opt seccomp=unconfined` for `test-tsan` (setarch needs `personality()`). `run-all.sh` prints each failure's last lines in the CI log |
 | `&local` not inside `[stack]` only with GCC 13+ ASan | detect_stack_use_after_return is on by default and moves address-taken locals to a heap "fake stack". In programs that inspect stack addresses, define `__asan_default_options()` returning `"detect_stack_use_after_return=0"` under `__SANITIZE_ADDRESS__` |
