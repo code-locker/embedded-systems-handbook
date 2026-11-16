@@ -133,6 +133,22 @@ static long rollup(const char *key)
     return v;
 }
 
+/*
+ * This program measures where locals live, so they must be on the REAL
+ * stack. GCC 13+ ASan (Ubuntu 24.04, CI) enables detect_stack_use_after_return
+ * by default: address-taken locals are moved to a heap-allocated "fake
+ * stack" and `&local` is no longer inside [stack]. This hook (read by the
+ * ASan runtime at startup) turns only that feature off; every other ASan
+ * check stays on.
+ */
+#if defined(__SANITIZE_ADDRESS__)
+const char *__asan_default_options(void);
+const char *__asan_default_options(void)
+{
+    return "detect_stack_use_after_return=0";
+}
+#endif
+
 /* ---- 1. which VMA holds what ---- */
 static int g_global = 42; /* .data */
 

@@ -90,6 +90,22 @@ static int find_vma(uintptr_t addr, struct vma *out)
  *         +------------------+     the kernel moves the start down (grows)
  *   low   |  stack_guard_gap |     (up to RLIMIT_STACK, then SIGSEGV)
  */
+/*
+ * This program measures where locals live, so they must be on the REAL
+ * stack. GCC 13+ ASan (Ubuntu 24.04, CI) enables detect_stack_use_after_return
+ * by default: address-taken locals are moved to a heap-allocated "fake
+ * stack" and `&local` is no longer inside [stack]. This hook (read by the
+ * ASan runtime at startup) turns only that feature off; every other ASan
+ * check stays on.
+ */
+#if defined(__SANITIZE_ADDRESS__)
+const char *__asan_default_options(void);
+const char *__asan_default_options(void)
+{
+    return "detect_stack_use_after_return=0";
+}
+#endif
+
 static struct vma g_deep_vma;
 static uintptr_t g_deepest;
 
@@ -243,6 +259,15 @@ static void demo_aslr(void)
                : "clear -> normal randomised layout");
 
     char a[256], b[256];
+    /* Changing the personality can be forbidden (Docker's default seccomp
+     * profile blocks personality(ADDR_NO_RANDOMIZE)); then skip, don't fail. */
+    if (personality((unsigned long)pers) == -1 ||
+        personality((unsigned long)(pers | ADDR_NO_RANDOMIZE)) == -1) {
+        printf("   personality() not permitted here (container seccomp?) -> "
+               "ASLR comparison skipped\n");
+        return;
+    }
+    personality((unsigned long)pers); /* restore ours */
     CHECK(run_child(1, a, sizeof a));
     CHECK(run_child(1, b, sizeof b));
     printf("   two execs WITHOUT ASLR:\n     %s\n     %s\n", a, b);

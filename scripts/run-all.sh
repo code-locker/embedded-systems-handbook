@@ -9,13 +9,17 @@ pass=0; fail=0; failed=()
 
 while IFS= read -r bin; do
   case "$bin" in *_bug) continue ;; esac
-  if timeout 60 "$bin" >/dev/null 2>&1 </dev/null; then
+  out=$(timeout 60 "$bin" 2>&1 </dev/null); rc=$?
+  if [ "$rc" -eq 0 ]; then
     pass=$((pass + 1))
   else
     fail=$((fail + 1)); failed+=("$bin")
+    # Show why right away: on CI you cannot "re-run it directly".
+    echo "---- FAIL (exit $rc): $bin -- last lines:"
+    printf '%s\n' "$out" | tail -n 15 | sed 's/^/    /'
   fi
 done < <(for d in "${dirs[@]}"; do [ -d "$d" ] && find "$d" -type f -perm -u+x; done | sort)
 
 echo "passed: $pass   failed: $fail"
-for f in "${failed[@]}"; do echo "  FAIL: $f   (re-run it directly to see the output)"; done
+for f in "${failed[@]}"; do echo "  FAIL: $f"; done
 [ "$fail" -eq 0 ]

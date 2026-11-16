@@ -16,6 +16,7 @@
  */
 #define _GNU_SOURCE
 #include <errno.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -189,9 +190,13 @@ static void demo_scm_credentials(void)
         fake.pid = 1;
         errno = 0;
         ssize_t r = send_with_cred(sv[1], "liar", &fake);
-        if (is_root) {
+        if (is_root && r == 4) {
             printf("  child: running as root, the fake pid was ALLOWED (CAP_SYS_ADMIN)\n");
-            CHILD_CHECK(r == 4);
+        } else if (is_root) {
+            /* root in a container usually lacks CAP_SYS_ADMIN: still EPERM */
+            printf("  child: root WITHOUT CAP_SYS_ADMIN (container?) -> %s\n",
+                   errno == EPERM ? "EPERM" : strerror(errno));
+            CHILD_CHECK(r == -1 && errno == EPERM);
         } else {
             printf("  child: claiming pid 1 -> sendmsg failed with %s\n",
                    errno == EPERM ? "EPERM" : strerror(errno));
@@ -213,7 +218,12 @@ static void demo_scm_credentials(void)
         CHECK(uc.pid == pid && uc.uid == getuid());
     }
     wait_child_ok(pid);
-    if (is_root) { /* drain the third message root was allowed to send */
+    /* A third message is queued only if the kernel allowed the fake pid,
+     * which needs CAP_SYS_ADMIN (not just uid 0). The child has exited, so
+     * a zero-timeout poll() tells us whether it is there. */
+    struct pollfd pf = {.fd = sv[0], .events = POLLIN};
+    if (poll(&pf, 1, 0) == 1) {
+        CHECK(is_root);
         CHECK(recv_with_cred(sv[0], buf, sizeof buf - 1, &uc) == 0);
         CHECK(uc.pid == 1);
     }
