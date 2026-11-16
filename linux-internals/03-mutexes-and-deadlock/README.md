@@ -329,7 +329,7 @@ mutex argument it can even declare a new variable called `m`.
   **lockdep** (`CONFIG_PROVE_LOCKING`) checks lock order for every lock
   class and prints "possible circular locking dependency" on the first
   inversion, even if no deadlock happened. See
-  [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 - **glibc.** `pthread_mutex_lock` is in `nptl/pthread_mutex_lock.c`: a CAS
   fast path, then `futex_wait`. `malloc` arenas each have a mutex (a form of
   lock striping: threads are spread over several arenas). `stdio` FILE

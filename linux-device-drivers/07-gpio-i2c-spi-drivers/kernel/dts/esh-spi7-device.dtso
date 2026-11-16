@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * esh-spi7-device.dtso — BeagleBone AI-64 overlay: enable McSPI7 on the P9
+ *                        header and put one SPI client device on CS0
+ *
+ * Concept : Unlike main_i2c2, the SPI controllers are "disabled" in the SoC
+ *           dtsi and their pads are muxed to something else, so this overlay
+ *           does three things:
+ *             1. pinmux: route four SoC pads to the SPI7 function (mode 6)
+ *                and park the SECOND pad of each header pin (see below);
+ *             2. enable &main_spi7 (spi@2170000, spi-omap2-mcspi driver);
+ *             3. add the client as a child node; "reg" is the chip select.
+ *
+ *   Header  SoC pad (ball)     pad offset  function    "b" pad parked
+ *   P9.31   EXT_REFCLK1 (U3)   0x234       SPI7_CLK    0x0d4 (AB26)
+ *   P9.28   ECAP0_IN    (U2)   0x230       SPI7_CS0    0x0b0 (AF28)
+ *   P9.30   TIMER_IO0   (V6)   0x238       SPI7_D0     0x0b4 (AE28)   MOSI
+ *   P9.29   TIMER_IO1   (V5)   0x23c       SPI7_D1     0x0d8 (AB25)   MISO
+ *
+ *           The pad data is taken from BeagleBoard.org's own overlay
+ *           k3-j721e-beagleboneai64-spi-mcspi7-cs0.dtso in the board kernel
+ *           tree (it binds spidev instead). On the AI-64 most header pins
+ *           are wired to TWO SoC pads ("a" and "b"); the unused one must be
+ *           set to PIN_DISABLE or both pads fight over the pin.
+ *           ti,pindir-d0-out-d1-in: McSPI data lines are bidirectional; this
+ *           property says D0 = MOSI (out), D1 = MISO (in). Without it the
+ *           driver default is the opposite and nothing comes back.
+ *           Loopback test without a sensor: wire P9.30 to P9.29 and load
+ *           esh_spi_sensor.ko loopback=1.
+ * Build   : needs the C preprocessor for the #includes, see ../../README.md
+ *           section 8 ("dtc" row) for the exact cpp + dtc -@ command.
+ * Read    : ../../README.md  (section 3.6 "Device tree for I2C and SPI devices")
+ *
+ * Uncertain: pin details were not checked against the schematic here; they
+ *            match the vendor overlay above. Verify with
+ *            `sudo cat /sys/kernel/debug/pinctrl/11c000.pinctrl-pinctrl-single/pins`
+ *            after boot (pad 0x234 must read mux mode 6).
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "k3-pinctrl.h"
+
+&main_pmx0 {
+	esh_spi7_pins: esh-spi7-pins {
+		pinctrl-single,pins = <
+			J721E_IOPAD(0x234, PIN_OUTPUT, 6)  /* (U3) SPI7_CLK  P9.31a */
+			J721E_IOPAD(0x0d4, PIN_DISABLE, 7) /* (AB26) park    P9.31b */
+			J721E_IOPAD(0x230, PIN_OUTPUT, 6)  /* (U2) SPI7_CS0  P9.28a */
+			J721E_IOPAD(0x0b0, PIN_DISABLE, 7) /* (AF28) park    P9.28b */
+			J721E_IOPAD(0x238, PIN_OUTPUT, 6)  /* (V6) SPI7_D0   P9.30a MOSI */
+			J721E_IOPAD(0x0b4, PIN_DISABLE, 7) /* (AE28) park    P9.30b */
+			J721E_IOPAD(0x23c, PIN_INPUT, 6)   /* (V5) SPI7_D1   P9.29a MISO */
+			J721E_IOPAD(0x0d8, PIN_DISABLE, 7) /* (AB25) park    P9.29b */
+		>;
+	};
+};
+
+&main_spi7 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&esh_spi7_pins>;
+	ti,spi-num-cs = <1>;
+	ti,pindir-d0-out-d1-in;
+	status = "okay";
+
+	/*
+	 * A REAL compatible for a real driver. Do not write
+	 * compatible = "spidev": the spidev driver refuses it with
+	 * "spidev listed directly in DT is not supported". For user-space
+	 * access rebind this device to spidev via driver_override (README 3.5).
+	 */
+	temperature-sensor@0 {
+		compatible = "esh,spi-temp-sensor";
+		reg = <0>;			/* CS0 */
+		spi-max-frequency = <1000000>;	/* 1 MHz: fine on jumper wires */
+		/* mode 0 (CPOL=0, CPHA=0) unless spi-cpol; / spi-cpha; are added */
+	};
+};

@@ -39,7 +39,7 @@ linux-device-drivers/
 # Host (the running kernel's headers: /lib/modules/$(uname -r)/build)
 sudo apt install linux-headers-$(uname -r) build-essential
 make drivers                        # every lesson's kernel/ + user/
-make -C linux-device-drivers/01-kernel-synchronization/kernel W=1   # one lesson, extra warnings
+make -C linux-device-drivers/03-kernel-synchronization/kernel W=1   # one lesson, extra warnings
 
 # Board: against the configured + built 6.18.x-k3 tree (it must contain
 # Module.symvers), with the SAME compiler that built that kernel.
@@ -98,4 +98,13 @@ use a separate debug build.
 
 | # | Lesson | You will be able to... |
 |---|--------|------------------------|
-| 01 | [Kernel synchronization](01-kernel-synchronization/) | name every source of concurrency in the kernel and the "may not sleep" rule; choose between `atomic_t`, `refcount_t`, bitops, barriers, `spinlock_t` (`_bh`/`_irqsave`/`raw_`), mutex, semaphore, rw-semaphore, completion, wait queue, seqlock, RCU and per-CPU data; implement a blocking `read()` + `poll()`; read lockdep splats |
+| 00 | [Kernel module basics](00-kernel-module-basics/) | build, load and unload a module; use printk, module parameters and exported symbols; know vermagic, Kbuild, taint and the common load errors |
+| 01 | [Char devices and file operations](01-char-devices-and-file-operations/) | write a character driver with `cdev`/misc, `file_operations`, `copy_to_user`/`copy_from_user`, `llseek` and a proper `ioctl` interface |
+| 02 | [Kernel memory and data structures](02-kernel-memory-and-data-structures/) | pick between `kmalloc`, `kmem_cache`, `vmalloc`, the page allocator, mempools and per-CPU memory with the right GFP flags; use `list_head`, hashtable, rbtree, xarray, IDA, kfifo and kref |
+| 03 | [Kernel synchronization](03-kernel-synchronization/) | name every source of concurrency in the kernel and the "may not sleep" rule; choose between `atomic_t`, `refcount_t`, bitops, barriers, `spinlock_t` (`_bh`/`_irqsave`/`raw_`), mutex, semaphore, rw-semaphore, completion, wait queue, seqlock, RCU and per-CPU data; implement a blocking `read()` + `poll()`; read lockdep splats |
+| 04 | [Interrupts, timers and deferred work](04-interrupts-timers-and-deferred-work/) | follow an interrupt from the GIC to your handler; split hard IRQ / threaded IRQ / workqueue work; use `timer_list`, `hrtimer`, kthreads and the right delay function; wire a GPIO button IRQ on the board |
+| 05 | [sysfs, procfs and debugfs](05-sysfs-procfs-debugfs/) | export device attributes in sysfs (with `poll()` notifications), write `seq_file` proc entries and debugfs knobs, and choose the right interface |
+| 06 | [Device model and device tree](06-device-model-and-device-tree/) | explain bus/device/driver matching and probe; write a platform driver with `devm_*`, MMIO and properties; read the BeagleBone AI-64 DTS and write an overlay |
+| 07 | [GPIO, I2C and SPI drivers](07-gpio-i2c-spi-drivers/) | use gpiod and the GPIO char device; write I2C and SPI client drivers with regmap; test them with `i2c-stub` in a VM and on the board's headers |
+| 08 | [DMA and mmap](08-dma-and-mmap/) | allocate coherent and streaming DMA buffers with correct ownership, use dmaengine (UDMA on the TDA4VM), and `mmap` driver memory into user space |
+| 09 | [Kernel debugging and tracing](09-kernel-debugging-and-tracing/) | use dynamic debug, decode an oops, trace with ftrace/tracepoints/kprobes, and enable KASAN, lockdep and kmemleak; know kgdb over the serial console |

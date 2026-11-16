@@ -408,7 +408,7 @@ off. That only works because the class provides `try_lock()`.
   cannot deadlock against the code it interrupted; `raw_spinlock_t` stays a
   real spinlock even on PREEMPT_RT, where `spinlock_t` becomes a sleeping
   rt-mutex. The full interrupt-context story is in
-  [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
   The arm64 spinlock is the qspinlock (MCS) since 4.18; before that it was
   a ticket lock using `LDAXR`/`STXR` and `WFE`/`SEV` to sleep the core
   while waiting.

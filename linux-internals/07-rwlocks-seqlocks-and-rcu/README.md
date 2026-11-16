@@ -307,7 +307,7 @@ run, while `get_pair()` under one shared lock is always consistent.
     PID hash, netfilter rules, device lists. `rcu_read_lock()` /
     `synchronize_rcu()` / `call_rcu()` / `kfree_rcu()`. Driver-side usage
     is in
-    [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+    [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 - **glibc / user space.** `pthread_rwlock_t`; liburcu (LTTng, Knot DNS,
   GlusterFS); `std::shared_mutex`; databases use reader-writer latches on
   B-tree pages.

@@ -266,7 +266,7 @@ semaphore that *throws* on a second `release()`.
   event". Semaphores remain for true counting (e.g. limiting outstanding
   requests in some drivers). The kernel's user-space side implements System
   V semaphores in `ipc/sem.c`. See
-  [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+  [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
 - **glibc.** `nptl/sem_wait.c`, `sem_post.c`, `sem_open.c`. Named
   semaphores live in `/dev/shm`. `sem_post` stays async-signal-safe because
   it is lock-free.

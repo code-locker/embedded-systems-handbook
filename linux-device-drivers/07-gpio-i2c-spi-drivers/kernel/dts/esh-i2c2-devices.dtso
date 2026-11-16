@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
+/*
+ * esh-i2c2-devices.dtso — BeagleBone AI-64 overlay: two I2C client devices on
+ *                         the header bus main_i2c2 (P9.19 = SCL, P9.20 = SDA)
+ *
+ * Concept : An I2C device is a CHILD node of the controller node it hangs
+ *           off; "reg" is its 7-bit address. The controller (&main_i2c2,
+ *           i2c@2020000, omap-i2c driver) is already enabled and pin-muxed
+ *           by the board DTS (k3-j721e-beagleboneai64.dts: main_i2c2_pins_default,
+ *           100 kHz, alias i2c2 -> /dev/i2c-2), so this overlay only ADDS
+ *           children. When the overlay is applied, the i2c core creates an
+ *           i2c_client per child and matches "compatible" against the
+ *           drivers' of_match_table.
+ * Build   : dtc -@ -I dts -O dtb -o esh-i2c2-devices.dtbo esh-i2c2-devices.dtso
+ *           (no #includes here, so plain dtc is enough)
+ * Use     : copy the .dtbo to /boot/firmware/overlays/ (or wherever your
+ *           extlinux.conf points) and add it to the "fdtoverlays" line;
+ *           reboot; ls /sys/bus/i2c/devices/2-0050 2-0048
+ * Read    : ../../README.md  (section 3.6 "Device tree for I2C and SPI devices")
+ *           ../../../06-device-model-and-device-tree/ for overlays in general
+ *
+ * Hardware: 3.3 V logic only. Most breakout boards carry their own 4.7 kOhm
+ *           pull-ups; the SoC's internal pull-up (PIN_INPUT_PULLUP in the
+ *           board's pinmux) is far too weak (tens of kOhm) for a real bus.
+ *           Do NOT use 0x50 on wkup_i2c0: that bus holds the board-ID
+ *           EEPROM (atmel,24c04) and is not on the header anyway.
+ */
+
+/dts-v1/;
+/plugin/;
+
+&main_i2c2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* 24C02-style EEPROM, driver: kernel/esh_eeprom.c */
+	eeprom@50 {
+		compatible = "esh,24c02";
+		reg = <0x50>;
+		/* read-only;   uncomment to make the nvmem file read-only */
+	};
+
+	/* fictional regmap sensor, driver: kernel/esh_sensor.c */
+	temperature-sensor@48 {
+		compatible = "esh,temp-sensor";
+		reg = <0x48>;
+	};
+};

@@ -541,4 +541,4 @@ Review this card with the schedule in
 — what goes wrong the moment two of these threads touch the same variable.
 Later: [09 — Pipes and FIFOs](../09-ipc-pipes-and-fifos/README.md) builds
 on `fork` + `pipe` from `c/01`; the kernel's view of tasks and locking is
-in [linux-device-drivers/01-kernel-synchronization](../../linux-device-drivers/01-kernel-synchronization/README.md).
+in [linux-device-drivers/03-kernel-synchronization](../../linux-device-drivers/03-kernel-synchronization/README.md).
